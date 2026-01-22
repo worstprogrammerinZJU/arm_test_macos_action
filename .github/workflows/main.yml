@@ -81,13 +81,14 @@ jobs:
         
         if [ $(find . -name "*.s" | wc -l) -eq 0 ]; then
           echo "创建测试汇编文件..."
-          cat > test_example.s << 'EOF'
-          .text
-          .globl _test_func
-          _test_func:
-              mov x0, #42
-              ret
-EOF
+          # 使用不同的分隔符
+          cat > test_example.s << 'END_OF_FILE'
+.text
+.globl _test_func
+_test_func:
+    mov x0, #42
+    ret
+END_OF_FILE
           echo "✅ 创建了 test_example.s"
         fi
         
