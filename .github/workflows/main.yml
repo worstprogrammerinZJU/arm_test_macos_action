@@ -58,7 +58,7 @@ jobs:
         chmod +x batch_test_new.py
         
         # 运行测试脚本
-        python3 batch_test_new.py . --verbose
+        python3 batch_test_new.py
     
     - name: Upload test results
       if: always()
