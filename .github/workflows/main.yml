@@ -52,13 +52,35 @@ jobs:
         echo "=== 当前目录 ==="
         ls -la
     
-    - name: Run the Python test script
+    - name: Run the Python test script with debug
       run: |
+        echo "=== 开始运行测试脚本 ==="
+        echo "脚本路径: $(pwd)/batch_test_new.py"
+        echo "参数: . --verbose"
+        
         # 给脚本执行权限
         chmod +x batch_test_new.py
         
-        # 运行测试脚本
-        python3 batch_test_new.py
+        # 运行测试脚本，显示详细输出
+        set -x  # 显示执行的命令
+        python3 batch_test_new.py . --verbose
+        
+        echo "脚本退出码: $?"
+    
+    - name: Check script execution
+      if: always()
+      run: |
+        echo "=== 脚本执行后检查 ==="
+        echo "当前目录内容:"
+        ls -la
+        
+        if [ -d "test_output_macos" ]; then
+          echo "✅ 测试输出目录存在"
+          echo "目录内容:"
+          find test_output_macos -type f | head -20
+        else
+          echo "❌ 测试输出目录不存在 - 脚本可能没有成功执行"
+        fi
     
     - name: Upload test results
       if: always()
@@ -97,4 +119,5 @@ jobs:
           fi
         else
           echo "❌ 测试输出目录不存在"
+          echo "脚本可能遇到了错误，请查看上方的详细输出"
         fi
