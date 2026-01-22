@@ -29,7 +29,7 @@ jobs:
         # 安装 QEMU
         echo "安装 QEMU..."
         brew install qemu || echo "QEMU 安装可能有问题，继续..."
-        
+        brew install qemu-user qemu-user-static || echo "static 安装有问题"
         # 验证工具安装
         echo "=== 验证工具 ==="
         which clang || echo "警告: clang 未找到"
