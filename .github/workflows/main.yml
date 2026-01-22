@@ -116,13 +116,14 @@ jobs:
     
     - name: Upload test artifacts
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # 已更新到v4
       with:
         name: test-output
         path: |
           test_output_macos/
           *.o
           test_program
+        retention-days: 3  # 添加自动清理旧artifacts
     
     - name: Generate summary
       if: always()
@@ -136,5 +137,15 @@ jobs:
             echo ""
             echo "测试报告:"
             cat test_output_macos/test_report.txt
+            
+            # 添加测试结果摘要
+            echo "::group::测试结果摘要"
+            grep -E '✅|❌|失败|成功' test_output_macos/test_report.txt || true
+            echo "::endgroup::"
           fi
+        fi
+        
+        # 添加工作流状态注释
+        if [ "${{ job.status }}" != "success" ]; then
+          echo "::warning::部分测试未通过"
         fi
