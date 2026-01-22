@@ -54,7 +54,6 @@ jobs:
         echo "=== 工具版本 ==="
         which clang
         clang --version
-        which qemu-aarch64
         echo ""
         echo "=== 汇编文件 ==="
         find . -name "*.s" -o -name "*.S" | head -10
