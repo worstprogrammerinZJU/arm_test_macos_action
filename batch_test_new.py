@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-macOS ARM64汇编QEMU测试脚本 - 精简版
-保持原有代码结构，只添加QEMU执行功能
+macOS ARM64汇编QEMU测试脚本 - GitHub Actions 适配版
+修改工具检查逻辑以适应 GitHub Actions 环境
 """
 
 import os
@@ -14,7 +14,7 @@ import re
 import argparse
 
 class macOSARM64Tester:
-    """macOS ARM64汇编测试器"""
+    """macOS ARM64汇编测试器 - GitHub Actions 适配版"""
     
     def __init__(self, compiler="clang", qemu="qemu-aarch64", verbose=False):
         self.compiler = compiler
@@ -22,20 +22,90 @@ class macOSARM64Tester:
         self.verbose = verbose
         self.results = []
         
-        # 检查工具
-        if not self._check_tool_exists(qemu):
-            print(f"❌ 未找到QEMU: {qemu}")
-            print("请安装: sudo apt-get install qemu-user qemu-user-static")
-            sys.exit(1)
+        # GitHub Actions 适配：修改工具检查逻辑
+        self._setup_environment()
         
         # 创建输出目录
         self.output_dir = Path("test_output_macos")
         self.output_dir.mkdir(exist_ok=True)
     
+    def _setup_environment(self):
+        """设置环境，适配 GitHub Actions"""
+        print("=== GitHub Actions 环境设置 ===")
+        
+        # 检查编译器
+        if not self._check_tool_exists(self.compiler):
+            print(f"⚠️  未找到编译器: {self.compiler}")
+            print("在 GitHub Actions 中，clang 应该已经安装")
+            # 尝试使用系统默认编译器
+            self.compiler = "clang"
+        
+        # 检查 QEMU - GitHub Actions 适配
+        if not self._check_tool_exists(self.qemu):
+            print(f"❌ 未找到 QEMU: {self.qemu}")
+            print("在 GitHub Actions 中，请确保工作流中包含: brew install qemu")
+            print("当前工作流应该已经安装了 QEMU，但可能路径有问题")
+            # 在 GitHub Actions 中，我们期望 QEMU 已经通过 brew 安装
+            # 尝试查找 QEMU 的其他可能路径
+            qemu_paths = [
+                "/usr/local/bin/qemu-aarch64",
+                "/opt/homebrew/bin/qemu-aarch64",
+                "/usr/bin/qemu-aarch64"
+            ]
+            for path in qemu_paths:
+                if os.path.exists(path):
+                    self.qemu = path
+                    print(f"✅ 找到 QEMU: {path}")
+                    break
+            else:
+                print("❌ 无法找到 QEMU，请检查工作流配置")
+                # 在 GitHub Actions 中，我们让脚本继续运行，但会在后续步骤失败
+        
+        # 显示工具信息
+        self._show_tool_info()
+    
     def _check_tool_exists(self, tool: str) -> bool:
         """检查工具是否存在"""
         import shutil
         return shutil.which(tool) is not None
+    
+    def _show_tool_info(self):
+        """显示工具信息"""
+        print("=== 工具信息 ===")
+        
+        # 检查编译器
+        try:
+            result = subprocess.run([self.compiler, "--version"], 
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                print(f"✅ 编译器 {self.compiler}: 可用")
+                print(f"   版本: {result.stdout.splitlines()[0] if result.stdout else '未知'}")
+            else:
+                print(f"⚠️  编译器 {self.compiler}: 检查失败")
+        except Exception as e:
+            print(f"⚠️  编译器检查异常: {e}")
+        
+        # 检查 QEMU
+        try:
+            result = subprocess.run([self.qemu, "-version"], 
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                print(f"✅ QEMU {self.qemu}: 可用")
+                qemu_version = result.stdout.splitlines()[0] if result.stdout else "未知"
+                print(f"   版本: {qemu_version}")
+            else:
+                print(f"❌ QEMU {self.qemu}: 检查失败")
+                # 尝试直接执行 QEMU
+                result = subprocess.run([self.qemu, "-cpu", "help"], 
+                                      capture_output=True, text=True, timeout=10)
+                if result.returncode == 0:
+                    print(f"✅ QEMU 可以执行 ARM 代码")
+                else:
+                    print(f"❌ QEMU 无法执行 ARM 代码")
+        except Exception as e:
+            print(f"❌ QEMU 检查异常: {e}")
+        
+        print("=== 环境设置完成 ===\n")
     
     def _extract_function_name(self, asm_content: str) -> str:
         """从macOS汇编提取函数名"""
@@ -585,7 +655,7 @@ int main() {{
         
         report = f"""
 {'='*60}
-macOS ARM64汇编QEMU测试报告
+macOS ARM64汇编QEMU测试报告 (GitHub Actions 适配版)
 {'='*60}
 总计: {total} 个文件
 成功: {success} 个 ({success/total*100:.1f}% 成功率)
@@ -622,7 +692,7 @@ macOS ARM64汇编QEMU测试报告
 
 def main():
     """主函数"""
-    parser = argparse.ArgumentParser(description="macOS ARM64汇编QEMU测试工具")
+    parser = argparse.ArgumentParser(description="macOS ARM64汇编QEMU测试工具 - GitHub Actions 适配版")
     parser.add_argument("directory", nargs="?", default=".", 
                        help="要测试的目录（默认: 当前目录）")
     parser.add_argument("--compiler", default="clang",
@@ -644,24 +714,42 @@ def main():
     )
     
     # 运行测试
-    print("macOS ARM64汇编QEMU测试工具")
+    print("macOS ARM64汇编QEMU测试工具 - GitHub Actions 适配版")
     print(f"测试目录: {args.directory}")
     print(f"编译器: {args.compiler}")
     print(f"QEMU: {args.qemu}")
     print("="*60)
     
-    results = tester.run_batch(args.directory, args.max_files)
-    
-    # 生成报告
-    report = tester.generate_report(results)
-    print(report)
-    
-    # 保存报告
-    report_file = tester.output_dir / "test_report.txt"
-    report_file.write_text(report, encoding='utf-8')
-    print(f"报告已保存到: {report_file}")
-    
-    return 0 if len(results) > 0 else 1
+    try:
+        results = tester.run_batch(args.directory, args.max_files)
+        
+        # 生成报告
+        report = tester.generate_report(results)
+        print(report)
+        
+        # 保存报告
+        report_file = tester.output_dir / "test_report.txt"
+        report_file.write_text(report, encoding='utf-8')
+        print(f"报告已保存到: {report_file}")
+        
+        # 返回适当的退出码
+        if results:
+            success_count = sum(1 for r in results if r.get("success", False))
+            if success_count == 0 and len(results) > 0:
+                return 1  # 有测试但全部失败
+            else:
+                return 0  # 成功或有部分成功
+        else:
+            return 1  # 没有找到测试文件
+        
+    except KeyboardInterrupt:
+        print("\n测试被用户中断")
+        return 130
+    except Exception as e:
+        print(f"测试过程中发生异常: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
