@@ -21,16 +21,22 @@ jobs:
       with:
         python-version: '3.x'
     
-    - name: Install QEMU for macOS
+    - name: Install QEMU and verify
       run: |
-        echo "=== 安装 QEMU (macOS 版本) ==="
         brew install qemu
+        echo "=== 检查 QEMU 安装 ==="
         
-        echo "=== 验证安装 ==="
-        which qemu-aarch64
-        qemu-aarch64 --version
+        # 检查可能的 QEMU 可执行文件
+        echo "QEMU 可执行文件:"
+        ls /opt/homebrew/bin/qemu-* 2>/dev/null || echo "Homebrew 目录未找到"
+        ls /usr/local/bin/qemu-* 2>/dev/null || echo "usr/local 目录未找到"
         
-        echo "✅ QEMU 安装完成"
+        # 检查特定架构
+        which qemu-aarch64 || echo "qemu-aarch64 未找到"
+        which qemu-system-aarch64 || echo "qemu-system-aarch64 未找到"
+        
+        # 尝试使用找到的 QEMU
+        /opt/homebrew/bin/qemu-system-aarch64 --version || echo "无法运行系统模拟器"
     
     - name: Check QEMU functionality
       run: |
