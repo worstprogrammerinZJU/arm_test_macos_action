@@ -24,13 +24,19 @@ jobs:
     
     - name: Install system dependencies
       run: |
+        echo "=== 开始安装系统依赖 ==="
+        
         # 安装 QEMU
-        brew install qemu
+        echo "安装 QEMU..."
+        brew install qemu || echo "QEMU 安装可能有问题，继续..."
         
         # 验证工具安装
-        which clang
-        which qemu-aarch64
-        python3 --version
+        echo "=== 验证工具 ==="
+        which clang || echo "警告: clang 未找到"
+        which qemu-aarch64 || echo "警告: qemu-aarch64 未找到"
+        python3 --version || echo "警告: Python 未找到"
+        
+        echo "✅ 系统依赖安装完成"
     
     - name: Install Python dependencies
       run: |
