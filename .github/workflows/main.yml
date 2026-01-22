@@ -19,15 +19,12 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'  # 指定具体版本
+        python-version: '3.10'
         cache: 'pip'
     
     - name: Install system dependencies
       run: |
-        # 安装 QEMU
         brew install qemu
-        
-        # 验证工具
         which clang
         which qemu-aarch64
         python3 --version
@@ -35,10 +32,7 @@ jobs:
     
     - name: Install Python dependencies
       run: |
-        # 只安装必要的包，不检查 requirements.txt
         pip install argparse
-        
-        # 列出已安装的包用于调试
         echo "=== 已安装的 Python 包 ==="
         pip list
     
@@ -64,21 +58,16 @@ jobs:
       run: |
         echo "=== 运行测试脚本（带调试）==="
         
-        # 检查脚本是否存在
         if [ ! -f "batch_test_new.py" ]; then
           echo "❌ 错误：batch_test_new.py 文件不存在"
           ls -la *.py
           exit 1
         fi
         
-        # 给脚本执行权限
         chmod +x batch_test_new.py
-        
-        # 尝试运行脚本
         echo "尝试运行测试脚本..."
         python3 batch_test_new.py . --verbose --max-files 1 || echo "脚本执行失败，继续..."
         
-        # 检查是否生成了输出目录
         if [ -d "test_output_macos" ]; then
           echo "✅ 输出目录已创建"
           ls -la test_output_macos/
@@ -90,28 +79,24 @@ jobs:
       run: |
         echo "=== 创建测试文件用于调试 ==="
         
-        # 如果没有 .s 文件，创建一个简单的测试文件
         if [ $(find . -name "*.s" | wc -l) -eq 0 ]; then
           echo "创建测试汇编文件..."
           cat > test_example.s << 'EOF'
           .text
           .globl _test_func
           _test_func:
-              mov x0, #42      // 返回42
+              mov x0, #42
               ret
 EOF
           echo "✅ 创建了 test_example.s"
         fi
         
-        # 列出所有汇编文件
         echo "=== 现有的汇编文件 ==="
         find . -name "*.s" -o -name "*.S"
     
     - name: Run simplified test
       run: |
         echo "=== 简化测试 ==="
-        
-        # 直接运行 Python 脚本的导入检查
         python3 -c "
 import sys
 print('Python 路径:', sys.path)
@@ -128,7 +113,6 @@ except ImportError as e:
     print('❌ pathlib 导入失败:', e)
         "
         
-        # 尝试导入主脚本
         python3 -c "
 try:
     import batch_test_new
@@ -144,7 +128,6 @@ except Exception as e:
       run: |
         echo "=== 检查并上传 Artifacts ==="
         
-        # 检查文件是否存在
         echo "检查 test_output_macos:"
         if [ -d "test_output_macos" ]; then
           ls -la test_output_macos/
@@ -159,7 +142,6 @@ except Exception as e:
         echo "检查 test_program:"
         find . -name "test_program" 2>/dev/null || echo "没有找到 test_program"
         
-        # 创建一些测试文件用于验证上传
         mkdir -p artifacts_debug
         echo "测试时间: $(date)" > artifacts_debug/debug_info.txt
         echo "工作流运行: $GITHUB_RUN_ID" >> artifacts_debug/debug_info.txt
@@ -170,8 +152,7 @@ except Exception as e:
       uses: actions/upload-artifact@v4
       with:
         name: debug-output
-        path: |
-          artifacts_debug/
+        path: artifacts_debug/
         retention-days: 1
     
     - name: Upload real artifacts if exist
@@ -184,7 +165,7 @@ except Exception as e:
           **/*.o
           test_program
         retention-days: 3
-      continue-on-error: true  # 即使没有文件也继续
+      continue-on-error: true
     
     - name: Final summary
       if: always()
