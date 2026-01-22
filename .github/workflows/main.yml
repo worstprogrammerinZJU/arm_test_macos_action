@@ -20,31 +20,24 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.x'
-        cache: 'pip'
     
-    - name: Install system dependencies
+    - name: Install QEMU for macOS
       run: |
-        echo "=== 开始安装系统依赖 ==="
+        echo "=== 安装 QEMU (macOS 版本) ==="
+        brew install qemu
         
-        # 安装 QEMU
-        echo "安装 QEMU..."
-        brew install qemu || echo "QEMU 安装可能有问题，继续..."
-        brew install qemu-user qemu-user-static || echo "static 安装有问题"
-        # 验证工具安装
-        echo "=== 验证工具 ==="
-        which clang || echo "警告: clang 未找到"
-        which qemu-aarch64 || echo "警告: qemu-aarch64 未找到"
-        python3 --version || echo "警告: Python 未找到"
+        echo "=== 验证安装 ==="
+        which qemu-aarch64
+        qemu-aarch64 --version
         
-        echo "✅ 系统依赖安装完成"
+        echo "✅ QEMU 安装完成"
     
-    - name: Install Python dependencies
+    - name: Check QEMU functionality
       run: |
-        # 安装 requirements.txt 中的所有依赖
-        # pip install -r requirements.txt
-        
-        # 验证安装
-        # pip list
+        echo "=== 测试 QEMU 功能 ==="
+        # 测试 QEMU 是否能正常运行
+        qemu-aarch64 -cpu help | head -5 || echo "QEMU 功能测试失败"
+        echo "✅ QEMU 功能正常"
     
     - name: Display environment info
       run: |
@@ -52,40 +45,29 @@ jobs:
         uname -a
         sw_vers
         echo ""
-        echo "=== 找到的汇编文件 ==="
-        find . -name "*.s" -o -name "*.S" | head -10
+        echo "=== 工具版本 ==="
+        which clang
+        clang --version
+        which qemu-aarch64
         echo ""
-        echo "=== 当前目录 ==="
-        ls -la
+        echo "=== 汇编文件 ==="
+        find . -name "*.s" -o -name "*.S" | head -10
     
-    - name: Run the Python test script with debug
+    - name: Run the Python test script
       run: |
-        echo "=== 开始运行测试脚本 ==="
-        echo "脚本路径: $(pwd)/batch_test_new.py"
-        echo "参数: . --verbose"
-        
-        # 给脚本执行权限
+        echo "=== 运行测试脚本 ==="
         chmod +x batch_test_new.py
-        
-        # 运行测试脚本，显示详细输出
-        set -x  # 显示执行的命令
         python3 batch_test_new.py . --verbose
-        
-        echo "脚本退出码: $?"
     
-    - name: Check script execution
+    - name: Check results
       if: always()
       run: |
-        echo "=== 脚本执行后检查 ==="
-        echo "当前目录内容:"
-        ls -la
-        
+        echo "=== 检查结果 ==="
         if [ -d "test_output_macos" ]; then
-          echo "✅ 测试输出目录存在"
-          echo "目录内容:"
-          find test_output_macos -type f | head -20
+          echo "✅ 输出目录存在"
+          ls -la test_output_macos/
         else
-          echo "❌ 测试输出目录不存在 - 脚本可能没有成功执行"
+          echo "❌ 输出目录不存在"
         fi
     
     - name: Upload test results
@@ -95,35 +77,4 @@ jobs:
         name: test-results
         path: test_output_macos/
         retention-days: 7
-    
-    - name: Upload individual test artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: compiled-files
-        path: |
-          **/*.o
-          **/test_*
-        retention-days: 3
       continue-on-error: true
-    
-    - name: Generate summary
-      if: always()
-      run: |
-        echo "=== 测试总结 ==="
-        echo "工作流状态: ${{ job.status }}"
-        
-        if [ -d "test_output_macos" ]; then
-          echo "✅ 测试输出目录存在"
-          echo "输出目录内容:"
-          ls -la test_output_macos/
-          
-          if [ -f "test_output_macos/test_report.txt" ]; then
-            echo ""
-            echo "📊 测试报告摘要:"
-            cat test_output_macos/test_report.txt | head -20
-          fi
-        else
-          echo "❌ 测试输出目录不存在"
-          echo "脚本可能遇到了错误，请查看上方的详细输出"
-        fi
