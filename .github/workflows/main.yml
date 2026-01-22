@@ -1,0 +1,151 @@
+# .github/workflows/asm-test.yml
+name: Test macOS ARM Assembly
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  test-assembly:
+    runs-on: macos-latest  # 必须用 macOS 环境
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+        cache: 'pip'  # 缓存 pip 依赖
+    
+    - name: Install system dependencies
+      run: |
+        # 安装必要的编译工具
+        brew update || true
+        xcode-select --install 2>/dev/null || true
+        
+        # 安装 QEMU (用于 ARM 模拟)
+        brew install qemu
+        
+        # 验证工具安装
+        which clang
+        which qemu-aarch64
+        python3 --version
+    
+    - name: Install Python dependencies
+      run: |
+        # 安装脚本中可能需要的 Python 包
+        python3 -m pip install --upgrade pip
+        
+        # 如果有 requirements.txt 文件
+        if [ -f "requirements.txt" ]; then
+          pip install -r requirements.txt
+        else:
+          # 如果没有，安装常用包
+          pip install argparse
+        
+        # 列出已安装的包
+        pip list
+    
+    - name: Display environment info
+      run: |
+        echo "=== 系统信息 ==="
+        uname -a
+        sw_vers
+        echo ""
+        echo "=== 工具版本 ==="
+        clang --version
+        which qemu-aarch64
+        python3 --version
+        echo ""
+        echo "=== 文件结构 ==="
+        find . -name "*.s" -o -name "*.S" | head -20
+    
+    - name: Test with default arguments
+      run: |
+        echo "=== 运行测试脚本 ==="
+        python3 batch_test_new.py .
+    
+    - name: Test with verbose output
+      run: |
+        echo "=== 详细模式测试 ==="
+        python3 batch_test_new.py . --verbose || true
+    
+    - name: Test limited files
+      run: |
+        echo "=== 测试前5个文件 ==="
+        python3 batch_test_new.py . --max-files 5 --verbose || true
+    
+    - name: Compile single file test
+      run: |
+        echo "=== 编译单个文件测试 ==="
+        # 查找一个 .s 文件测试
+        ASM_FILE=$(find . -name "*.s" | head -1)
+        if [ -f "$ASM_FILE" ]; then
+          echo "测试文件: $ASM_FILE"
+          
+          # 编译为目标文件
+          clang -target arm64-apple-darwin -c "$ASM_FILE" -o test.o
+          file test.o
+          
+          # 创建简单的测试程序
+          cat > test_main.c << 'EOF'
+          #include <stdio.h>
+          
+          // 假设汇编文件定义了 _test_func
+          extern int _test_func(void);
+          
+          int main() {
+              printf("Testing ARM assembly...\n");
+              int result = _test_func();
+              printf("Result: %d\n", result);
+              return 0;
+          }
+          EOF
+          
+          # 编译和链接
+          clang -target arm64-apple-darwin test_main.c test.o -o test_program || true
+          
+        else
+          echo "没有找到 .s 文件"
+        fi
+    
+    - name: Upload test artifacts
+      if: always()
+      uses: actions/upload-artifact@v4  # 已更新到v4
+      with:
+        name: test-output
+        path: |
+          test_output_macos/
+          *.o
+          test_program
+        retention-days: 3  # 添加自动清理旧artifacts
+    
+    - name: Generate summary
+      if: always()
+      run: |
+        echo "=== 测试总结 ==="
+        if [ -d "test_output_macos" ]; then
+          echo "输出目录内容:"
+          ls -la test_output_macos/
+          
+          if [ -f "test_output_macos/test_report.txt" ]; then
+            echo ""
+            echo "测试报告:"
+            cat test_output_macos/test_report.txt
+            
+            # 添加测试结果摘要
+            echo "::group::测试结果摘要"
+            grep -E '✅|❌|失败|成功' test_output_macos/test_report.txt || true
+            echo "::endgroup::"
+          fi
+        fi
+        
+        # 添加工作流状态注释
+        if [ "${{ job.status }}" != "success" ]; then
+          echo "::warning::部分测试未通过"
+        fi
