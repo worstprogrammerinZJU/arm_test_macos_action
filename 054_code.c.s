@@ -23,7 +23,7 @@ _func0:                                 ; @func0
 LBB0_1:
 	adrp	x8, l_.str@PAGE
 	add	x8, x8, l_.str@PAGEOFF
-	str	x8, [sp, #40]
+	stur	x8, [x29, #-8]
 	b	LBB0_6
 LBB0_2:
 	ldur	w8, [x29, #-16]
@@ -41,9 +41,10 @@ LBB0_2:
 	str	w8, [sp, #12]
 	ldr	x8, [sp, #16]
 	ldrsw	x9, [sp, #12]
-	subs	x9, x9, #1
-	str	x9, [sp, #12]
-	strb	wzr, [x8, x9]
+	subs	x10, x9, #1
+	str	x10, [sp, #12]
+	add	x8, x8, x9
+	strb	wzr, [x8]
 	b	LBB0_3
 LBB0_3:                                 ; =>This Inner Loop Header: Depth=1
 	ldur	w8, [x29, #-20]
@@ -56,7 +57,8 @@ LBB0_3:                                 ; =>This Inner Loop Header: Depth=1
 	ldr	w11, [sp, #12]
 	subs	w11, w11, #1
 	str	w11, [sp, #12]
-	strb	w8, [x9, w11, sxtw]
+	add	x9, x9, w11, sxtw
+	strb	w8, [x9]
 	ldur	w8, [x29, #-20]
 	sdiv	w8, w8, w10
 	stur	w8, [x29, #-20]
@@ -70,8 +72,11 @@ LBB0_4:                                 ;   in Loop: Header=BB0_3 Depth=1
 LBB0_5:
 	ldr	x8, [sp, #16]
 	ldr	w9, [sp, #12]
-	add	w9, w9, #1
-	add	x8, x8, w9, sxtw
+	add	w11, w9, #1
+                                        ; implicit-def: $x9
+	mov	x9, x11
+	sxtw	x9, w9
+	add	x8, x8, x9
 	stur	x8, [x29, #-8]
 	b	LBB0_6
 LBB0_6:

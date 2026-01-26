@@ -59,7 +59,8 @@ LBB0_7:                                 ;   in Loop: Header=BB0_3 Depth=1
 	str	w8, [sp, #8]
 	b	LBB0_3
 LBB0_8:
-	sturb	wzr, [x29, #-1]
+	mov	w8, #1
+	sturb	w8, [x29, #-1]
 	b	LBB0_9
 LBB0_9:
 	ldurb	w8, [x29, #-1]
