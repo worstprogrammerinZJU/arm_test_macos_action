@@ -1,6 +1,11 @@
 .section	__TEXT,__text,regular,pure_instructions
 	.build_version macos, 13, 0	sdk_version 13, 3
-	.globl	_func0                          ; -- Begin function func0
+	.section	__TEXT,__literal8,8byte_literals
+	.p2align	3                               ; -- Begin function func0
+lCPI0_0:
+	.quad	0x3fe0000000000000              ; double 0.5
+	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_func0
 	.p2align	2
 _func0:                                 ; @func0
 	.cfi_startproc
@@ -23,23 +28,26 @@ _func0:                                 ; @func0
 	b	LBB0_1
 LBB0_1:
 	ldr	d0, [sp, #16]
-	fmov	d1, #0.50000000
-	fsub	d0, d0, d1
-	frintm	d0, d0
+	adrp	x8, lCPI0_0@PAGE
+	ldr	d1, [x8, lCPI0_0@PAGEOFF]
+	subs	d0, d0, d1
+	round	d0, $10
 	str	d0, [sp, #8]                    ; 8-byte Folded Spill
 	b	LBB0_3
 LBB0_2:
 	ldr	d0, [sp, #16]
-	fmov	d1, #0.50000000
-	fadd	d0, d0, d1
-	frintm	d0, d0
+	adrp	x8, lCPI0_0@PAGE
+	ldr	d1, [x8, lCPI0_0@PAGEOFF]
+	add	d0, d0, d1
+	round	d0, $9
 	str	d0, [sp, #8]                    ; 8-byte Folded Spill
 	b	LBB0_3
 LBB0_3:
 	ldr	d0, [sp, #8]                    ; 8-byte Folded Reload
-	fcvtzs	w0, d0
-	ldp	x29, x30, [sp, #32]             ; 16-byte Folded Reload
+                                        ; kill: def $w0 killed $w0 killed $x0
+	scvtf	s0, s0
 	add	sp, sp, #48
+	ldp	x29, x30, [sp, #32]             ; 16-byte Folded Reload
 	ret
 	.cfi_endproc
                                         ; -- End function

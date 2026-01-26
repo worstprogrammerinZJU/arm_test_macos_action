@@ -1,6 +1,11 @@
 .section	__TEXT,__text,regular,pure_instructions
 	.build_version macos, 13, 0	sdk_version 13, 3
-	.globl	_func0                          ; -- Begin function func0
+	.section	__TEXT,__literal4,4byte_literals
+	.p2align	2                               ; -- Begin function func0
+lCPI0_0:
+	.long	0xc61c4000                      ; float -1.0E+4
+	.section	__TEXT,__text,regular,pure_instructions
+	.globl	_func0
 	.p2align	2
 _func0:                                 ; @func0
 	.cfi_startproc
@@ -9,8 +14,7 @@ _func0:                                 ; @func0
 	.cfi_def_cfa_offset 32
 	str	x0, [sp, #24]
 	str	w1, [sp, #20]
-	mov	w8, #-1073741840
-	fmov	s0, w8
+	fmov	s0, lCPI0_0@PAGE
 	str	s0, [sp, #16]
 	str	wzr, [sp, #12]
 	b	LBB0_1

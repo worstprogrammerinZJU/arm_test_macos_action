@@ -32,7 +32,7 @@ LBB0_2:
 	add	x8, x8, w9, sxtw
 	ldrb	w8, [x8]
 	strb	w8, [sp, #11]
-	ldrb	w0, [sp, #11]
+	ldurb	w0, [sp, #11]
 	bl	_isalpha
 	subs	w8, w0, #0
 	cset	w8, ne
@@ -58,7 +58,7 @@ LBB0_6:
 	add	x8, x8, w9, sxtw
 	ldrb	w8, [x8]
 	strb	w8, [sp, #10]
-	ldrb	w0, [sp, #10]
+	ldurb	w0, [sp, #10]
 	bl	_isalpha
 	subs	w8, w0, #0
 	cset	w8, eq

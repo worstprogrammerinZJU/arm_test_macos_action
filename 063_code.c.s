@@ -31,31 +31,32 @@ LBB0_1:                                 ; =>This Loop Header: Depth=1
 LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldur	x8, [x29, #-8]
 	ldrsw	x9, [sp, #20]
-	add	x8, x8, x9
-	ldrb	w8, [x8]
+	ldrb	w8, [x8, x9]
 	strb	w8, [sp, #15]
-	ldrsb	w0, [sp, #15]
+	ldursb	w0, [sp, #15]
 	bl	_islower
 	subs	w8, w0, #0
 	cset	w8, eq
 	tbnz	w8, #0, LBB0_4
 	b	LBB0_3
 LBB0_3:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldrsb	w0, [sp, #15]
+	ldursb	w0, [sp, #15]
 	bl	_toupper
-	strb	w0, [sp, #15]
+                                        ; kill: def $w8 killed $w8 killed $a0
+	strb	w8, [sp, #15]
 	b	LBB0_7
 LBB0_4:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldrsb	w0, [sp, #15]
+	ldursb	w0, [sp, #15]
 	bl	_isupper
 	subs	w8, w0, #0
 	cset	w8, eq
 	tbnz	w8, #0, LBB0_6
 	b	LBB0_5
 LBB0_5:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldrsb	w0, [sp, #15]
+	ldursb	w0, [sp, #15]
 	bl	_tolower
-	strb	w0, [sp, #15]
+                                        ; kill: def $w8 killed $w8 killed $a0
+	strb	w8, [sp, #15]
 	b	LBB0_6
 LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
 	b	LBB0_7
@@ -72,7 +73,7 @@ LBB0_8:                                 ;   Parent Loop BB0_1 Depth=1
 	tbnz	w8, #0, LBB0_15
 	b	LBB0_9
 LBB0_9:                                 ;   in Loop: Header=BB0_8 Depth=2
-	ldrsb	w8, [sp, #15]
+	ldursb	w8, [sp, #15]
 	ldr	x9, [sp, #24]
 	ldrsw	x10, [sp, #16]
 	ldrsb	w9, [x9, x10]
@@ -87,8 +88,9 @@ LBB0_10:                                ;   in Loop: Header=BB0_1 Depth=1
 	tbnz	w8, #0, LBB0_12
 	b	LBB0_11
 LBB0_11:                                ;   in Loop: Header=BB0_1 Depth=1
-	ldrsb	w8, [sp, #15]
+	ldursb	w8, [sp, #15]
 	add	w8, w8, #2
+                                        ; kill: def $w8 killed $w8 killed $w8
 	strb	w8, [sp, #15]
 	b	LBB0_12
 LBB0_12:                                ;   in Loop: Header=BB0_1 Depth=1

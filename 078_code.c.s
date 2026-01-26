@@ -36,10 +36,10 @@ LBB0_4:                                 ;   in Loop: Header=BB0_3 Depth=1
 LBB0_5:                                 ;   Parent Loop BB0_3 Depth=1
                                         ; =>  This Inner Loop Header: Depth=2
 	ldr	w8, [sp, #8]
-	ldr	w10, [sp]
-	sdiv	w9, w8, w10
-	mul	w9, w9, w10
-	subs	w8, w8, w9
+	ldr	w9, [sp]
+	sdiv	w8, w8, w9
+	mul	w8, w8, w9
+	subs	w8, w8, w0
 	subs	w8, w8, #0
 	cset	w8, ne
 	tbnz	w8, #0, LBB0_7

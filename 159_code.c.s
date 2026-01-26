@@ -80,7 +80,7 @@ LBB0_10:                                ;   in Loop: Header=BB0_1 Depth=1
 	subs	w8, w8, w9
 	cset	w8, gt
 	tbnz	w8, #0, LBB0_12
-	b	LBB0_11
+	b	LBB0_14
 LBB0_11:
 	mov	w8, #1
 	stur	w8, [x29, #-4]

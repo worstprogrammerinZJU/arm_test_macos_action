@@ -31,7 +31,7 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldursw	x9, [x29, #-28]
 	ldr	x0, [x8, x9, lsl #3]
 	bl	_strlen
-	ands	x8, x0, #0x1
+	subs	x8, x0, #1
 	cset	w8, ne
 	tbnz	w8, #0, LBB0_4
 	b	LBB0_3
@@ -69,30 +69,105 @@ LBB0_7:                                 ; =>This Loop Header: Depth=1
 	tbnz	w8, #0, LBB0_18
 	b	LBB0_8
 LBB0_8:                                 ;   in Loop: Header=BB0_7 Depth=1
-	str	wzr, [sp, #32]
+	stur	wzr, [x29, #-32]
 	b	LBB0_9
 LBB0_9:                                 ;   Parent Loop BB0_7 Depth=1
                                         ; =>  This Inner Loop Header: Depth=2
-	ldr	w8, [sp, #32]
+	ldur	w8, [x29, #-32]
 	ldur	x9, [x29, #-24]
 	ldr	w9, [x9]
 	ldur	w10, [x29, #-28]
 	subs	w9, w9, w10
-	subs	w9, w9, #1
 	subs	w8, w8, w9
 	cset	w8, ge
 	tbnz	w8, #0, LBB0_16
 	b	LBB0_10
 LBB0_10:                                ;   in Loop: Header=BB0_9 Depth=2
 	ldur	x8, [x29, #-8]
+	ldursw	x9, [x29, #-32]
+	ldr	x0, [x8, x9, lsl #3]
+	bl	_strlen
+	str	x0, [sp, #16]
+	ldur	x8, [x29, #-8]
+	ldur	w9, [x29, #-32]
+	add	w9, w9, #1
+	ldr	x0, [x8, w9, sxtw #3]
+	bl	_strlen
+	str	x0, [sp, #8]
+	ldr	x8, [sp, #16]
+	ldr	x9, [sp, #8]
+	subs	x8, x8, x9
+	cset	w8, hi
+	tbnz	w8, #0, LBB0_13
+	b	LBB0_11
+LBB0_11:                                ;   in Loop: Header=BB0_9 Depth=2
+	ldr	x8, [sp, #16]
+	ldr	x9, [sp, #8]
+	subs	x8, x8, x9
+	cset	w8, eq
+	tbnz	w8, #0, LBB0_14
+	b	LBB0_12
+LBB0_12:                                ;   in Loop: Header=BB0_9 Depth=2
+	ldur	x8, [x29, #-8]
+	ldursw	x9, [x29, #-32]
+	ldr	x8, [x8, x9, lsl #3]
+	ldur	x9, [x29, #-8]
+	ldur	w10, [x29, #-32]
+	add	w10, w10, #1
+	ldr	x8, [x9, w10, sxtw #3]
+	str	x8, [x8, x10, sxtw #3]
+	ldr	x8, [sp, #16]
+	ldr	w9, [x8, w10, sxtw #3]
+	add	w9, w9, #1
+	ldr	x8, [x8, w9, sxtw #3]
+	ldr	x9, [x8, w10, sxtw #3]
+	str	x9, [x8, w10, sxtw #3]
+	b	LBB0_14
+LBB0_13:                                ;   in Loop: Header=BB0_9 Depth=2
+	b	LBB0_15
+LBB0_14:                                ;   in Loop: Header=BB0_9 Depth=2
+	ldur	w8, [x29, #-32]
+	add	w0, w8, #1
+	str	w0, [x30, #-32]
+	b	LBB0_9
+LBB0_15:                                ;   in Loop: Header=BB0_7 Depth=1
+	b	LBB0_17
+LBB0_17:                                ;   in Loop: Header=BB0_7 Depth=1
+	ldur	w8, [x29, #-28]
+	add	w8, w8, #1
+	stur	w8, [x29, #-28]
+	b	LBB0_7
+LBB0_18:
+	ldur	x8, [x29, #-24]
+	ldrsw	x8, [x8]
+	lsl	x0, x8, #3
+	bl	_malloc
+	str	x0, [sp]
+	stur	wzr, [x29, #-28]
+	b	LBB0_19
+LBB0_19:                                ; =>This Inner Loop Header: Depth=1
+	ldur	w8, [x29, #-28]
+	ldur	x9, [x29, #-24]
+	ldr	w9, [x9]
+	subs	w8, w8, w9
+	cset	w8, ge
+	tbnz	w8, #0, LBB0_22
+	b	LBB0_20
+LBB0_20:                                ;   in Loop: Header=BB0_19 Depth=1
+	ldur	x8, [x29, #-8]
 	ldursw	x9, [x29, #-28]
 	ldr	x8, [x8, x9, lsl #3]
-	ldr	x9, [sp, #8]
+	ldr	x9, [sp]
 	ldursw	x10, [x29, #-28]
 	str	x8, [x9, x10, lsl #3]
-	b	LBB0_11
-LBB0_11:
-	ldr	x0, [sp, #8]
+	b	LBB0_21
+LBB0_21:                                ;   in Loop: Header=BB0_19 Depth=1
+	ldur	w8, [x29, #-28]
+	add	w8, w8, #1
+	stur	w8, [x29, #-28]
+	b	LBB0_19
+LBB0_22:
+	ldr	x0, [sp]
 	ldp	x29, x30, [sp, #64]             ; 16-byte Folded Reload
 	add	sp, sp, #80
 	ret

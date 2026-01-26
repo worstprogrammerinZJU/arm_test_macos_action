@@ -14,13 +14,11 @@ _func0:                                 ; @func0
 	.cfi_offset w29, -16
 	stur	x0, [x29, #-8]
 	stur	x1, [x29, #-16]
-                                        ; kill: def $x8 killed $xzr
 	str	xzr, [sp, #24]
 	str	wzr, [sp, #20]
 	str	wzr, [sp, #16]
 	str	wzr, [sp, #12]
 	str	wzr, [sp, #8]
-	str	wzr, [sp, #12]
 	b	LBB0_1
 LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
 	ldur	x8, [x29, #-8]
@@ -33,10 +31,9 @@ LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
 LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldur	x8, [x29, #-8]
 	ldrsw	x9, [sp, #12]
-	add	x8, x8, x9
-	ldrb	w8, [x8]
-	strb	w8, [sp, #7]
-	ldrsb	w8, [sp, #7]
+	ldrb	w8, [x8, x9]
+	strb	w8, [sp, #3]
+	ldrsb	w8, [sp, #3]
 	subs	w8, w8, #40
 	cset	w8, ne
 	tbnz	w8, #0, LBB0_6
@@ -58,7 +55,7 @@ LBB0_4:                                 ;   in Loop: Header=BB0_1 Depth=1
 LBB0_5:                                 ;   in Loop: Header=BB0_1 Depth=1
 	b	LBB0_11
 LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldrsb	w8, [sp, #7]
+	ldursb	w8, [x29, #-3]
 	subs	w8, w8, #41
 	cset	w8, ne
 	tbnz	w8, #0, LBB0_10
@@ -76,19 +73,16 @@ LBB0_8:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	x0, [sp, #24]
 	ldr	w8, [sp, #8]
 	add	w9, w8, #1
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	sxtw	x9, w8
-	mov	x8, #4
-	mul	x1, x8, x9
+	ldrsw	x10, [x9]
+	lsl	x10, x10, #2
 	bl	_realloc
 	str	x0, [sp, #24]
 	ldr	w8, [sp, #16]
 	ldr	x9, [sp, #24]
-	ldrsw	x10, [sp, #8]
-	mov	x11, x10
-	add	w11, w11, #1
+	ldr	w10, [sp, #8]
+	add	w11, w10, #1
 	str	w11, [sp, #8]
+	ldrsw	x10, [w10]
 	str	w8, [x9, x10, lsl #2]
 	str	wzr, [sp, #16]
 	b	LBB0_9

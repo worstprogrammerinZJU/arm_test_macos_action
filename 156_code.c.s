@@ -16,7 +16,6 @@ _func0:                                 ; @func0
 	stur	w1, [x29, #-12]
 	str	x2, [sp, #24]
 	str	x3, [sp, #16]
-                                        ; kill: def $x8 killed $xzr
 	str	xzr, [sp, #8]
 	str	wzr, [sp, #4]
 	str	wzr, [sp]
@@ -41,11 +40,8 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 LBB0_3:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	x0, [sp, #8]
 	ldr	w8, [sp, #4]
-	add	w9, w8, #1
-                                        ; implicit-def: $x8
-	mov	x8, x9
-	sxtw	x8, w8
-	lsl	x1, x8, #3
+	add	w3, w8, #1
+	lsl	x1, x3, #3
 	bl	_realloc
 	str	x0, [sp, #8]
 	ldur	x8, [x29, #-8]
@@ -55,8 +51,8 @@ LBB0_3:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldrsw	x10, [sp, #4]
 	str	x8, [x9, x10, lsl #3]
 	ldr	w8, [sp, #4]
-	add	w8, w8, #1
-	str	w8, [sp, #4]
+	add	w4, w8, #1
+	str	w4, [sp, #4]
 	b	LBB0_4
 LBB0_4:                                 ;   in Loop: Header=BB0_1 Depth=1
 	b	LBB0_5

@@ -36,8 +36,8 @@ LBB0_3:
 	ldr	x9, [sp, #24]
 	str	w8, [x9]
 	ldr	x8, [sp, #24]
-	ldrsw	x8, [x8]
-	lsl	x0, x8, #2
+	ldrsw	x9, [x8]
+	lsl	x0, x9, #2
 	bl	_malloc
 	str	x0, [sp, #16]
 	ldur	w8, [x29, #-12]
@@ -66,19 +66,19 @@ LBB0_6:                                 ; =>This Inner Loop Header: Depth=1
 LBB0_7:                                 ;   in Loop: Header=BB0_6 Depth=1
 	ldur	w8, [x29, #-16]
 	ldr	x9, [sp, #16]
-	ldrsw	x10, [sp, #8]
-	mov	x11, x10
-	add	w11, w11, #1
+	ldr	w10, [sp, #8]
+	add	w11, w10, #1
 	str	w11, [sp, #8]
+	ldrsw	x10, [w10]
 	str	w8, [x9, x10, lsl #2]
 	ldur	x8, [x29, #-8]
 	ldrsw	x9, [sp, #12]
 	ldr	w8, [x8, x9, lsl #2]
 	ldr	x9, [sp, #16]
-	ldrsw	x10, [sp, #8]
-	mov	x11, x10
-	add	w11, w11, #1
+	ldr	w10, [sp, #8]
+	add	w11, w10, #1
 	str	w11, [sp, #8]
+	ldrsw	x10, [w10]
 	str	w8, [x9, x10, lsl #2]
 	b	LBB0_8
 LBB0_8:                                 ;   in Loop: Header=BB0_6 Depth=1
