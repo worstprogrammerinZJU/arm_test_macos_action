@@ -1,6 +1,6 @@
 .section	__TEXT,__text,regular,pure_instructions
 	.build_version macos, 13, 0	sdk_version 13, 3
-	.globl	_func0                        ; -- Begin function func0
+	.globl	_func0                          ; -- Begin function func0
 	.p2align	2
 _func0:                                 ; @func0
 	.cfi_startproc
@@ -10,7 +10,8 @@ _func0:                                 ; @func0
 	str	x0, [sp, #40]
 	str	w1, [sp, #36]
 	str	x2, [sp, #24]
-	fmov	s0, #3.40282347E+38
+	movi.2s	v0, #79, lsl #24
+	fmov	s0, s0
 	str	s0, [sp, #20]
 	ldr	x8, [sp, #40]
 	ldr	s0, [x8]
@@ -58,7 +59,7 @@ LBB0_4:                                 ;   in Loop: Header=BB0_3 Depth=2
 	ldr	s0, [sp, #8]
 	ldr	s1, [sp, #20]
 	fcmp	s0, s1
-	cset	w8, le
+	cset	w8, pl
 	tbnz	w8, #0, LBB0_6
 	b	LBB0_5
 LBB0_5:                                 ;   in Loop: Header=BB0_3 Depth=2
@@ -95,7 +96,7 @@ LBB0_10:
 	ldr	x8, [sp, #24]
 	ldr	s1, [x8, #4]
 	fcmp	s0, s1
-	cset	w8, pl
+	cset	w8, le
 	tbnz	w8, #0, LBB0_12
 	b	LBB0_11
 LBB0_11:
@@ -108,17 +109,8 @@ LBB0_11:
 	str	s0, [x8]
 	ldr	s0, [sp, #4]
 	ldr	x8, [sp, #24]
-	ldr	s1, [x8, #4]
-	fcvt	d0, s1
-	fabs	d0, d0
-	fcvt	s0, d0
-	str	s0, [sp]
-	ldr	s0, [sp]
-	ldr	s1, [sp, #20]
-	fcmp	s0, s1
-	cset	w8, le
-	tbnz	w8, #0, LBB0_6
-	b	LBB0_5
+	str	s0, [x8, #4]
+	b	LBB0_12
 LBB0_12:
 	add	sp, sp, #48
 	ret

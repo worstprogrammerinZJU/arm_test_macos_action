@@ -75,31 +75,31 @@ LBB0_9:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	w8, [sp, #8]
 	add	w8, w8, #1
 	str	w8, [sp, #8]
-	b	LBB0_1
+	b	LBB0_11
 LBB0_10:
 	ldr	w8, [sp, #20]
 	subs	w8, w8, #0
 	cset	w8, ne
-	tbnz	w8, #0, LBB0_12
+	tbnz	w8, #0, LBB0_16
 	b	LBB0_11
 LBB0_11:
 	ldr	w8, [sp, #4]
 	subs	w8, w8, #0
 	cset	w8, eq
-	tbnz	w8, #0, LBB0_12
-	b	LBB0_13
+	tbnz	w8, #0, LBB0_16
+	b	LBB0_12
 LBB0_12:
 	adrp	x8, l_.str@PAGE
 	add	x8, x8, l_.str@PAGEOFF
 	stur	x8, [x29, #-8]
-	b	LBB0_13
+	b	LBB0_47
 LBB0_13:
 	adrp	x8, l_.str.1@PAGE
 	add	x8, x8, l_.str.1@PAGEOFF
 	stur	x8, [x29, #-8]
 	b	LBB0_14
 LBB0_14:
-	ldur	x8, [x29, #-8]
+	ldur	x0, [x29, #-8]
 	ldp	x29, x30, [sp, #48]             ; 16-byte Folded Reload
 	add	sp, sp, #64
 	ret

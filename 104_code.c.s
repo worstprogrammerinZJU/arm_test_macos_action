@@ -17,7 +17,7 @@ _func0:                                 ; @func0
 	ldur	x0, [x29, #-16]
 	bl	_strlen
 	mov	x8, x0
-	str	w8, [sp, #36]
+	stur	w8, [x29, #-28]
 	ldur	x0, [x29, #-24]
 	bl	_strlen
 	mov	x8, x0
